@@ -3,6 +3,7 @@ package com.mohammadmirzakhani.sample.daggertwojavasample;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -49,20 +50,19 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-//This is a one way to define Observable but its not good way because we cant use The operators
-        Observable<Integer> observable =new Observable<Integer>() {
-            @Override
-            protected void subscribeActual(Observer<? super Integer> observer) {
-                observer.onNext(1);
-                observer.onComplete();
-            }
-        };
 
-        observable.subscribeOn(Schedulers.io());
-        observable.observeOn(AndroidSchedulers.mainThread());
-        observable.subscribe(observer());
+        rxJava();
 
     }
+
+    private void rxJava() {
+        Observable<Integer> observable = Observable.just(1, 2, 3);
+        observable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observer());
+    }
+
 
     private Observer<Integer> observer(){
         return new Observer<Integer>() {
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onNext(Integer integer) {
-                Toast.makeText(MainActivity.this, "" + integer, Toast.LENGTH_SHORT).show();
+                Log.d("onNext","=> " + integer);
             }
 
             @Override
