@@ -21,6 +21,7 @@ import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity
@@ -73,13 +74,13 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private Observer<Integer> observer(){
-        return new Observer<Integer>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-                Log.d(TAG, " onSubscribe : " + d.isDisposed());
-
-            }
+    private DisposableObserver<Integer> observer(){
+        return new DisposableObserver<Integer>() {
+//            @Override
+//            public void onSubscribe(Disposable d) {
+//                Log.d(TAG, " onSubscribe : " + d.isDisposed());
+//
+//            }
 
             @Override
             public void onNext(Integer integer) {
@@ -153,5 +154,11 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        observer().dispose();
     }
 }
