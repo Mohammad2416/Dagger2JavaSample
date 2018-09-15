@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onNext(Integer integer) {
-                Log.d("onNext","=> " + integer);
+                Log.d(TAG,"=> " + integer);
             }
 
             @Override
