@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onNext(Integer integer) {
-                Log.d(TAG,"=> " + integer);
+                Log.d(TAG,"\n" + (integer - 1) + "=> " + integer);
             }
 
             @Override
@@ -94,10 +94,12 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onComplete() {
-
+                Log.d(TAG,"\n************onComplete*************\n"  );
             }
         };
     }
+
+    //--------------------------------------------------
 
     @Override
     public void onBackPressed() {
