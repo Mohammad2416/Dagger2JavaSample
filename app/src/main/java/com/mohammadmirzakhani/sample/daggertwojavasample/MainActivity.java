@@ -15,6 +15,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.mohammadmirzakhani.sample.daggertwojavasample.model.Banner;
+import com.mohammadmirzakhani.sample.daggertwojavasample.network.ApiServices;
+
+import java.io.File;
+
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.Scheduler;
@@ -23,6 +28,14 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.Cache;
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -55,49 +68,117 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        rxJava();
+//        rxJava();
+
+//        getBanner();
+        getBannerWithRx();
+
 
     }
 
-    private void rxJava() {
-        Observable<Integer> observable = Observable.just(1, 2, 3);
-        observable
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .map(new Function<Integer, Integer>() {
+    private void getBanner(){
+        getRetrofit().create(ApiServices.class).getBanners()
+                .enqueue(new Callback<Banner>() {
+            @Override
+            public void onResponse(Call<Banner> call, Response<Banner> response) {
+
+                Toast.makeText(MainActivity.this, "OnResponse!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<Banner> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void getBannerWithRx(){
+        getRetrofit().create(ApiServices.class)
+                .getBannersWithRx()
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Banner>() {
                     @Override
-                    public Integer apply(Integer integer) throws Exception {
-                        return integer + 1; //this is just a sample ;)
+                    public void onSubscribe(Disposable d) {
+
                     }
-                })
-                .subscribe(observer());
+
+                    @Override
+                    public void onNext(Banner banner) {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
+    private Retrofit getRetrofit(){
+        return new Retrofit.Builder()
+                .baseUrl(Config.BASE_URL)
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(getClient())
+                .build();
+        }
 
-    private DisposableObserver<Integer> observer(){
-        return new DisposableObserver<Integer>() {
+    private OkHttpClient getClient() {
+        return  new OkHttpClient.Builder().cache(getCache()).build();
+    }
+
+    private Cache getCache(){
+        return new Cache(getFile(), 5*1000*1000);
+    }
+
+    private File getFile(){
+        return new File(getCacheDir(), "OKHttp");
+    }
+
+//    private void rxJava() {
+//        Observable<Integer> observable = Observable.just(1, 2, 3);
+//        observable
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .map(new Function<Integer, Integer>() {
+//                    @Override
+//                    public Integer apply(Integer integer) throws Exception {
+//                        return integer + 1; //this is just a sample ;)
+//                    }
+//                })
+//                .subscribe(observer());
+//    }
+
+
+//    private DisposableObserver<Integer> observer(){
+//        return new DisposableObserver<Integer>() {
+////            @Override
+////            public void onSubscribe(Disposable d) {
+////                Log.d(TAG, " onSubscribe : " + d.isDisposed());
+////
+////            }
+//
 //            @Override
-//            public void onSubscribe(Disposable d) {
-//                Log.d(TAG, " onSubscribe : " + d.isDisposed());
+//            public void onNext(Integer integer) {
+//                Log.d(TAG,"\n" + (integer - 1) + "=> " + integer);
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
 //
 //            }
-
-            @Override
-            public void onNext(Integer integer) {
-                Log.d(TAG,"\n" + (integer - 1) + "=> " + integer);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onComplete() {
-                Log.d(TAG,"\n************onComplete*************\n"  );
-            }
-        };
-    }
+//
+//            @Override
+//            public void onComplete() {
+//                Log.d(TAG,"\n************onComplete*************\n"  );
+//            }
+//        };
+//    }
 
     //--------------------------------------------------
 
@@ -161,6 +242,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        observer().dispose();
+//        observer().dispose();
     }
 }
